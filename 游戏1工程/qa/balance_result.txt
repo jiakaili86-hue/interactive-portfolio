@@ -1,0 +1,19 @@
+balance=ok
+games_per_config=24
+survive_time=95 gold_regen=0.00 energy_regen=0.42 boss_hp=720
+---- 高手(0.5s/手) ----
+win_rate=71% (survive=0 boss=17) loss_entry=7
+avg_end_time=75.9s avg_boss_hp=158/720 (22%)
+avg_events_per_game=20.00 avg_player_alive=74.1 avg_enemy_alive=5.6 avg_min_margin=178px
+---- 熟练(1.5s/手) ----
+win_rate=67% (survive=0 boss=16) loss_entry=8
+avg_end_time=68.0s avg_boss_hp=198/720 (27%)
+avg_events_per_game=17.12 avg_player_alive=76.7 avg_enemy_alive=5.2 avg_min_margin=174px
+---- 普通(2.5s/手) ----
+win_rate=54% (survive=0 boss=13) loss_entry=11
+avg_end_time=61.6s avg_boss_hp=320/720 (44%)
+avg_events_per_game=15.38 avg_player_alive=59.4 avg_enemy_alive=10.0 avg_min_margin=113px
+---- 手忙(4.0s/手) ----
+win_rate=12% (survive=0 boss=3) loss_entry=21
+avg_end_time=48.3s avg_boss_hp=595/720 (83%)
+avg_events_per_game=9.92 avg_player_alive=35.9 avg_enemy_alive=17.5 avg_min_margin=33px

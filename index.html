@@ -1,0 +1,165 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="李家楷的互动设计与创意技术作品集，包含实时影像、WebGL、物理交互与声音实验。">
+  <title>李家楷 | Interactive Works</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Noto+Sans+SC:wght@400;500;700;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="home.css">
+  <script>
+    document.documentElement.classList.add("js");
+  </script>
+  <script src="home.js" defer></script>
+</head>
+<body class="is-loading">
+  <a class="skip-link" href="#selected-work">跳到精选作品</a>
+
+  <div class="loader" aria-hidden="true">
+    <div class="loader__name">LI JIAKAI</div>
+    <div class="loader__track"><span></span></div>
+    <div class="loader__meta">INTERACTIVE WORKS / 2026</div>
+  </div>
+
+  <header class="site-header">
+    <a class="identity" href="./" aria-label="李家楷作品集首页">
+      <span class="identity__name">LI JIAKAI</span>
+      <span class="identity__mark" aria-hidden="true"></span>
+    </a>
+    <p class="site-header__role">Creative technologist<br>Interactive designer</p>
+    <p class="site-header__count">
+      <span data-current-number>01</span>
+      <span aria-hidden="true">/</span>
+      <span>03</span>
+    </p>
+  </header>
+
+  <main>
+    <section class="showcase" id="selected-work" aria-label="精选互动作品">
+      <div class="media-stage" aria-hidden="true">
+        <figure class="project-media is-active" data-project-media="0">
+          <video muted loop playsinline preload="auto" poster="dissolve/bust.png">
+            <source src="ronin/assets/idle.mp4" type="video/mp4">
+          </video>
+        </figure>
+
+        <figure class="project-media project-media--still" data-project-media="1">
+          <img src="dissolve/bust.png" alt="">
+          <span class="project-media__echo"></span>
+        </figure>
+
+        <figure class="project-media" data-project-media="2">
+          <video muted loop playsinline preload="metadata" poster="lanyard/assets/front.png">
+            <source src="lanyard/assets/bg.mp4" type="video/mp4">
+          </video>
+        </figure>
+
+        <div class="media-stage__veil"></div>
+        <div class="media-stage__grain"></div>
+        <div class="pointer-light"></div>
+      </div>
+
+      <div class="showcase__content" aria-live="polite">
+        <article class="project-copy is-active" data-project-copy="0">
+          <p class="project-copy__type">Interactive film / WebAudio</p>
+          <div class="project-copy__title-wrap">
+            <h1 class="project-copy__title">侠客行</h1>
+          </div>
+          <p class="project-copy__english">RONIN POV</p>
+          <p class="project-copy__description">
+            第一人称浪人视角。影像、呼吸、眨眼与声音共同构成一个可以进入的瞬间。
+          </p>
+          <a class="enter-link" href="ronin/">
+            <span>进入作品</span>
+            <span class="enter-link__icon" aria-hidden="true">↗</span>
+          </a>
+        </article>
+
+        <article class="project-copy" data-project-copy="1" aria-hidden="true">
+          <p class="project-copy__type">WebGL experiment / GLSL</p>
+          <div class="project-copy__title-wrap">
+            <h2 class="project-copy__title">灰烬溶解</h2>
+          </div>
+          <p class="project-copy__english">DISSOLVE FX</p>
+          <p class="project-copy__description">
+            指针扫过画面，形体被实时噪声场剥离成拖影、碎屑与浮尘。
+          </p>
+          <a class="enter-link" href="dissolve/">
+            <span>进入作品</span>
+            <span class="enter-link__icon" aria-hidden="true">↗</span>
+          </a>
+        </article>
+
+        <article class="project-copy" data-project-copy="2" aria-hidden="true">
+          <p class="project-copy__type">3D interaction / Physics</p>
+          <div class="project-copy__title-wrap">
+            <h2 class="project-copy__title">物理吊牌</h2>
+          </div>
+          <p class="project-copy__english">LANYARD BADGE</p>
+          <p class="project-copy__description">
+            一张可以抓住、拖动与甩开的世界杯球迷证，绳体与卡牌由实时物理驱动。
+          </p>
+          <a class="enter-link" href="lanyard/">
+            <span>进入作品</span>
+            <span class="enter-link__icon" aria-hidden="true">↗</span>
+          </a>
+        </article>
+      </div>
+
+      <nav class="project-nav" aria-label="切换精选项目">
+        <a class="project-nav__item is-active" href="ronin/" data-project-trigger="0" data-accent="oklch(0.73 0.10 55)" aria-current="true">
+          <span class="project-nav__number">01</span>
+          <span class="project-nav__label">
+            <strong>侠客行</strong>
+            <small>Film / Sound</small>
+          </span>
+          <span class="project-nav__line" aria-hidden="true"></span>
+        </a>
+        <a class="project-nav__item" href="dissolve/" data-project-trigger="1" data-accent="oklch(0.79 0.03 240)">
+          <span class="project-nav__number">02</span>
+          <span class="project-nav__label">
+            <strong>灰烬溶解</strong>
+            <small>WebGL / GLSL</small>
+          </span>
+          <span class="project-nav__line" aria-hidden="true"></span>
+        </a>
+        <a class="project-nav__item" href="lanyard/" data-project-trigger="2" data-accent="oklch(0.85 0.16 105)">
+          <span class="project-nav__number">03</span>
+          <span class="project-nav__label">
+            <strong>物理吊牌</strong>
+            <small>R3F / Physics</small>
+          </span>
+          <span class="project-nav__line" aria-hidden="true"></span>
+        </a>
+      </nav>
+
+      <div class="showcase__hint" aria-hidden="true">
+        <span>Scroll to switch</span>
+        <span class="showcase__hint-line"></span>
+      </div>
+    </section>
+
+    <section class="practice" aria-labelledby="practice-title">
+      <p class="practice__eyebrow">Practice / 2024–2026</p>
+      <h2 id="practice-title">把影像、声音、代码与游戏规则，做成可以亲手触发的体验。</h2>
+      <div class="practice__fields" aria-label="创作领域">
+        <span>Interactive web</span>
+        <span>Generative image</span>
+        <span>Game experiments</span>
+        <a href="ip设计/">Character IP</a>
+      </div>
+      <p class="practice__note">
+        Selected works are best experienced on desktop Chrome.
+      </p>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <span>LI JIAKAI</span>
+    <span>INTERACTIVE PORTFOLIO</span>
+    <a href="#selected-work">BACK TO TOP ↑</a>
+  </footer>
+</body>
+</html>

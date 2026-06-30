@@ -1,0 +1,4 @@
+bgm_battle.mp3
+  原曲: "Samurai Nights" by Majadroid (Maik Hoffmann)
+  来源: https://opengameart.org/content/samurai-nights
+  协议: CC-BY 3.0 / 4.0（须署名，已在此注明）

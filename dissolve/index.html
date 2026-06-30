@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Dissolve · 鼠标溶解交互</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { height: 100%; background: #b9b9bb; overflow: hidden; }
+  body { font-family: "Helvetica Neue", "PingFang SC", sans-serif; }
+  #gl { position: fixed; inset: 0; width: 100%; height: 100%; display: block; cursor: crosshair; }
+  .ui {
+    position: fixed; left: 0; right: 0; bottom: 28px;
+    display: flex; justify-content: center; pointer-events: none;
+    color: rgba(30,30,32,0.4); font-size: 13px; letter-spacing: 0.35em;
+    text-transform: uppercase;
+  }
+  .brand {
+    position: fixed; top: 28px; left: 36px; pointer-events: none;
+    color: rgba(25,25,28,0.8); font-size: 14px; letter-spacing: 0.3em;
+    text-transform: uppercase;
+  }
+</style>
+</head>
+<body>
+<canvas id="gl"></canvas>
+<div class="brand">DISSOLVE.FX</div>
+<div class="ui">move your cursor — 划过画面让它溶解</div>
+
+<script>
+"use strict";
+
+// ---------------------------------------------------------------------------
+// 鼠标溶解（炭尘烟化版，对照 Unicorn Studio「NOMA」场景）：
+// 1. heat pass：鼠标轨迹画进 ping-pong 热度图，逐帧衰减 → 1~2 秒自愈
+// 2. main pass：
+//    - 水平长曝光式拖影（运动模糊重影，文字/轮廓被拉出涟漪幻影）
+//    - 不规则碎屑按 fbm 形状剥离，向右上飘成炭粉烟尘，边缘羽化
+//    - 溶解后露出画面自身的浅灰背景，整体保持单色质感
+// ---------------------------------------------------------------------------
+
+const canvas = document.getElementById("gl");
+const gl = canvas.getContext("webgl2", { antialias: false });
+if (!gl) { document.body.innerHTML = "<p style='color:#222;padding:40px'>需要 WebGL2 支持</p>"; throw new Error("no webgl2"); }
+
+const QUAD_VS = `#version 300 es
+in vec2 a_pos;
+out vec2 v_uv;
+void main() {
+  v_uv = a_pos * 0.5 + 0.5;
+  gl_Position = vec4(a_pos, 0.0, 1.0);
+}`;
+
+// ---- 热度图 pass ----
+const HEAT_FS = `#version 300 es
+precision highp float;
+in vec2 v_uv;
+out vec4 frag;
+uniform sampler2D u_prev;
+uniform vec2 u_mouse;
+uniform vec2 u_mousePrev;
+uniform float u_mouseDown;
+uniform float u_aspect;
+uniform float u_dt;
+uniform float u_active;
+
+float segDist(vec2 p, vec2 a, vec2 b) {
+  vec2 sc = vec2(u_aspect, 1.0);
+  p *= sc; a *= sc; b *= sc;
+  vec2 pa = p - a, ba = b - a;
+  float h = clamp(dot(pa, ba) / max(dot(ba, ba), 1e-6), 0.0, 1.0);
+  return length(pa - ba * h);
+}
+
+void main() {
+  float prev = texture(u_prev, v_uv).r;
+
+  // 指数衰减：约 1.5~2 秒自愈
+  float heat = prev * exp(-u_dt * 1.6);
+
+  if (u_active > 0.5) {
+    float d = segDist(v_uv, u_mousePrev, u_mouse);
+    float radius = 0.13 + u_mouseDown * 0.08;
+    float brush = smoothstep(radius, radius * 0.12, d);
+    heat = max(heat, brush);
+  }
+
+  frag = vec4(heat, 0.0, 0.0, 1.0);
+}`;
+
+// ---- 主合成 pass：拖影 + 碎屑炭尘 ----
+const MAIN_FS = `#version 300 es
+precision highp float;
+in vec2 v_uv;
+out vec4 frag;
+uniform sampler2D u_image;
+uniform sampler2D u_heat;
+uniform float u_time;
+uniform vec2 u_res;
+uniform vec2 u_imgRes;
+
+float hash(vec2 p) {
+  p = fract(p * vec2(234.34, 435.345));
+  p += dot(p, p + 34.23);
+  return fract(p.x * p.y);
+}
+float noise(vec2 p) {
+  vec2 i = floor(p), f = fract(p);
+  f = f * f * (3.0 - 2.0 * f);
+  float a = hash(i);
+  float b = hash(i + vec2(1.0, 0.0));
+  float c = hash(i + vec2(0.0, 1.0));
+  float d = hash(i + vec2(1.0, 1.0));
+  return mix(mix(a, b, f.x), mix(c, d, f.x), f.y);
+}
+float fbm(vec2 p) {
+  float v = 0.0, amp = 0.5;
+  for (int i = 0; i < 4; i++) {
+    v += amp * noise(p);
+    p = p * 2.13 + vec2(11.3, 7.7);
+    amp *= 0.5;
+  }
+  return v;
+}
+float lum(vec3 c) { return dot(c, vec3(0.299, 0.587, 0.114)); }
+
+vec2 coverUV(vec2 uv) {
+  float screenA = u_res.x / u_res.y;
+  float imgA = u_imgRes.x / u_imgRes.y;
+  vec2 st = uv;
+  if (screenA > imgA) {
+    st.y = (st.y - 0.5) * (imgA / screenA) + 0.5;
+  } else {
+    st.x = (st.x - 0.5) * (screenA / imgA) + 0.5;
+  }
+  st.y = 1.0 - st.y;
+  return st;
+}
+vec3 img(vec2 uv) { return texture(u_image, coverUV(uv)).rgb; }
+
+void main() {
+  vec2 aspect = vec2(u_res.x / u_res.y, 1.0);
+  float heat = clamp(texture(u_heat, v_uv).r, 0.0, 1.0);
+
+  // 画面自身的浅灰背景板：由近及远四方向找"第一个背景色样本"
+  // （背景明显比主体亮），保证溶解露出的底色贴合局部背景渐变
+  vec2 pdirs[4] = vec2[](vec2(-1.0, 0.0), vec2(1.0, 0.0), vec2(0.0, 1.0), vec2(0.0, -1.0));
+  vec3 plate = img(vec2(0.04, v_uv.y));
+  bool got = false;
+  for (int i = 1; i <= 5 && !got; i++) {
+    for (int j = 0; j < 4; j++) {
+      vec3 s = img(v_uv + pdirs[j] * 0.07 * float(i) / aspect);
+      if (lum(s) > 0.5) { plate = s; got = true; break; }
+    }
+  }
+  // 像素本来就是浅色背景时，"溶解后的底色"就是它自己 → 背景区域零痕迹
+  vec3 self = img(v_uv);
+  plate = mix(plate, self, smoothstep(0.45, 0.6, lum(self)));
+
+  // ---------- 1) 水平长曝光拖影 ----------
+  // 对称多次采样 → 重影涟漪；微小角度噪声让拖痕不机械
+  float streakLen = heat * heat * 0.16;
+  float angN = (fbm(v_uv * aspect * 3.0 + u_time * 0.1) - 0.5) * 0.35;
+  vec2 sdir = normalize(vec2(1.0, angN)) / aspect;
+  float jit = hash(v_uv * u_res + u_time);
+
+  vec3 smeared = vec3(0.0);
+  float wsum = 0.0;
+  for (int i = 0; i < 9; i++) {
+    float t = (float(i) + jit) / 9.0 * 2.0 - 1.0;   // -1..1
+    float w = 1.0 - abs(t) * 0.72;
+    smeared += img(v_uv + sdir * t * streakLen) * w;
+    wsum += w;
+  }
+  smeared /= wsum;
+
+  // 远距幻影回声（标题那种隔空重影）
+  float echoA = smoothstep(0.25, 0.8, heat) * 0.22;
+  smeared = mix(smeared, img(v_uv + sdir * streakLen * 2.6), echoA);
+  smeared = mix(smeared, img(v_uv - sdir * streakLen * 2.2), echoA * 0.7);
+
+  // ---------- 2) 碎屑剥离 ----------
+  // fbm 决定不规则碎块形状；时间缓慢流动 → 边缘沸腾
+  float flake = fbm(v_uv * aspect * 10.0 + vec2(u_time * 0.25, 0.0));
+  float m = smoothstep(flake * 0.78, flake * 0.78 + 0.3, heat);
+
+  // 脆性侵蚀：边缘锐利、被细颗粒打碎成粉末状缺口；
+  // 噪声只在过渡带起效，避免热度区外出现杂白点
+  float fine = noise(v_uv * aspect * 220.0 + u_time * 1.5);
+  float mid = fbm(v_uv * aspect * 55.0 + vec2(u_time * 0.5, 0.0));
+  float n2 = (fine - 0.5) * 0.9 + (mid - 0.5) * 1.1;
+  float erode = m + n2 * m * (1.0 - m) * 2.2;
+  float feather = smoothstep(0.42, 0.56, erode);
+  vec3 col = mix(smeared, plate, feather);
+
+  // ---------- 3) 炭尘烟化 ----------
+  // 离散黑色斑点流：从侵蚀前沿沿风向(右上)分多级距离飘出，
+  // 每级颗粒更稀、更小、更淡 —— 在浅背景上能清晰看到炭尘
+  vec2 wind = normalize(vec2(1.0, 0.22)) / aspect;
+  for (int k = 1; k <= 5; k++) {
+    float dk = float(k) / 5.0;                  // 0.2 .. 1.0
+    // 颗粒簇随时间向风向漂移
+    vec2 jitterUV = v_uv * aspect * mix(150.0, 70.0, dk)
+                  + vec2(-u_time * (0.6 + dk * 1.4), -u_time * 0.25);
+    float spk = step(0.58 + 0.26 * dk, noise(jitterUV));
+
+    // 这粒尘埃的"来处"：逆风向回溯
+    float trav = dk * 0.15 * (0.7 + 0.6 * hash(floor(jitterUV)));
+    vec2 src = v_uv - wind * trav;
+    float ms = smoothstep(flake * 0.78, flake * 0.78 + 0.3,
+                          clamp(texture(u_heat, src).r, 0.0, 1.0));
+    float emit = smoothstep(0.08, 0.35, ms);
+
+    vec3 srcCol = img(src);
+    float subj = clamp((lum(plate) - lum(srcCol)) * 4.0, 0.0, 1.0);
+
+    float a = spk * emit * subj * (1.0 - dk * 0.55);
+    col = mix(col, srcCol * 0.9, clamp(a, 0.0, 1.0));
+  }
+
+  // 轻微整体胶片颗粒
+  col += (hash(v_uv * u_res + fract(u_time) * 100.0) - 0.5) * 0.025;
+
+  frag = vec4(col, 1.0);
+}`;
+
+function compile(type, src) {
+  const s = gl.createShader(type);
+  gl.shaderSource(s, src);
+  gl.compileShader(s);
+  if (!gl.getShaderParameter(s, gl.COMPILE_STATUS))
+    throw new Error(gl.getShaderInfoLog(s));
+  return s;
+}
+function program(fsSrc) {
+  const p = gl.createProgram();
+  gl.attachShader(p, compile(gl.VERTEX_SHADER, QUAD_VS));
+  gl.attachShader(p, compile(gl.FRAGMENT_SHADER, fsSrc));
+  gl.linkProgram(p);
+  if (!gl.getProgramParameter(p, gl.LINK_STATUS))
+    throw new Error(gl.getProgramInfoLog(p));
+  return p;
+}
+
+const heatProg = program(HEAT_FS);
+const mainProg = program(MAIN_FS);
+
+const vao = gl.createVertexArray();
+gl.bindVertexArray(vao);
+const vbo = gl.createBuffer();
+gl.bindBuffer(gl.ARRAY_BUFFER, vbo);
+gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 3, -1, -1, 3]), gl.STATIC_DRAW);
+gl.enableVertexAttribArray(0);
+gl.vertexAttribPointer(0, 2, gl.FLOAT, false, 0, 0);
+
+const SIM = 512;
+function makeTarget() {
+  const tex = gl.createTexture();
+  gl.bindTexture(gl.TEXTURE_2D, tex);
+  gl.texImage2D(gl.TEXTURE_2D, 0, gl.R16F, SIM, SIM, 0, gl.RED, gl.HALF_FLOAT, null);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+  const fbo = gl.createFramebuffer();
+  gl.bindFramebuffer(gl.FRAMEBUFFER, fbo);
+  gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, tex, 0);
+  return { tex, fbo };
+}
+gl.getExtension("EXT_color_buffer_float");
+let heatA = makeTarget(), heatB = makeTarget();
+
+const imgTex = gl.createTexture();
+let imgRes = [16, 9];
+const img = new Image();
+img.src = "bust.png";
+img.onload = () => {
+  imgRes = [img.naturalWidth, img.naturalHeight];
+  gl.bindTexture(gl.TEXTURE_2D, imgTex);
+  gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, img);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+};
+
+const mouse = { x: 0.5, y: 0.5, tx: 0.5, ty: 0.5, px: 0.5, py: 0.5, down: 0, active: 0 };
+function setTarget(cx, cy) {
+  const r = canvas.getBoundingClientRect();
+  mouse.tx = (cx - r.left) / r.width;
+  mouse.ty = 1.0 - (cy - r.top) / r.height;
+  mouse.active = 1;
+}
+window.addEventListener("pointermove", e => setTarget(e.clientX, e.clientY));
+window.addEventListener("pointerdown", e => { mouse.down = 1; setTarget(e.clientX, e.clientY); });
+window.addEventListener("pointerup", () => (mouse.down = 0));
+document.addEventListener("mouseleave", () => (mouse.active = 0));
+
+// demo 模式：?demo=1 时虚拟光标自动巡航（用于无头截图 QA）
+const DEMO = new URLSearchParams(location.search).has("demo");
+
+function resize() {
+  const dpr = Math.min(window.devicePixelRatio || 1, 2);
+  canvas.width = Math.floor(innerWidth * dpr);
+  canvas.height = Math.floor(innerHeight * dpr);
+}
+window.addEventListener("resize", resize);
+resize();
+
+const uHeat = {
+  prev: gl.getUniformLocation(heatProg, "u_prev"),
+  mouse: gl.getUniformLocation(heatProg, "u_mouse"),
+  mousePrev: gl.getUniformLocation(heatProg, "u_mousePrev"),
+  mouseDown: gl.getUniformLocation(heatProg, "u_mouseDown"),
+  aspect: gl.getUniformLocation(heatProg, "u_aspect"),
+  dt: gl.getUniformLocation(heatProg, "u_dt"),
+  active: gl.getUniformLocation(heatProg, "u_active"),
+};
+const uMain = {
+  image: gl.getUniformLocation(mainProg, "u_image"),
+  heat: gl.getUniformLocation(mainProg, "u_heat"),
+  time: gl.getUniformLocation(mainProg, "u_time"),
+  res: gl.getUniformLocation(mainProg, "u_res"),
+  imgRes: gl.getUniformLocation(mainProg, "u_imgRes"),
+};
+
+let lastT = performance.now();
+let elapsed = 0;
+function frame(now) {
+  const dt = Math.min((now - lastT) / 1000, 0.05);
+  lastT = now;
+  elapsed += dt;
+
+  if (DEMO) {
+    mouse.tx = 0.62 + 0.22 * Math.sin(elapsed * 1.1);
+    mouse.ty = 0.55 + 0.22 * Math.sin(elapsed * 1.9 + 1.3);
+    mouse.active = 1;
+  }
+
+  mouse.px = mouse.x; mouse.py = mouse.y;
+  const k = 1.0 - Math.pow(0.0001, dt);
+  mouse.x += (mouse.tx - mouse.x) * k;
+  mouse.y += (mouse.ty - mouse.y) * k;
+
+  gl.bindFramebuffer(gl.FRAMEBUFFER, heatB.fbo);
+  gl.viewport(0, 0, SIM, SIM);
+  gl.useProgram(heatProg);
+  gl.activeTexture(gl.TEXTURE0);
+  gl.bindTexture(gl.TEXTURE_2D, heatA.tex);
+  gl.uniform1i(uHeat.prev, 0);
+  gl.uniform2f(uHeat.mouse, mouse.x, mouse.y);
+  gl.uniform2f(uHeat.mousePrev, mouse.px, mouse.py);
+  gl.uniform1f(uHeat.mouseDown, mouse.down);
+  gl.uniform1f(uHeat.aspect, canvas.width / canvas.height);
+  gl.uniform1f(uHeat.dt, dt);
+  gl.uniform1f(uHeat.active, mouse.active);
+  gl.bindVertexArray(vao);
+  gl.drawArrays(gl.TRIANGLES, 0, 3);
+  [heatA, heatB] = [heatB, heatA];
+
+  gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+  gl.viewport(0, 0, canvas.width, canvas.height);
+  gl.useProgram(mainProg);
+  gl.activeTexture(gl.TEXTURE0);
+  gl.bindTexture(gl.TEXTURE_2D, imgTex);
+  gl.uniform1i(uMain.image, 0);
+  gl.activeTexture(gl.TEXTURE1);
+  gl.bindTexture(gl.TEXTURE_2D, heatA.tex);
+  gl.uniform1i(uMain.heat, 1);
+  gl.uniform1f(uMain.time, now / 1000);
+  gl.uniform2f(uMain.res, canvas.width, canvas.height);
+  gl.uniform2f(uMain.imgRes, imgRes[0], imgRes[1]);
+  gl.drawArrays(gl.TRIANGLES, 0, 3);
+
+  requestAnimationFrame(frame);
+}
+requestAnimationFrame(frame);
+</script>
+</body>
+</html>
