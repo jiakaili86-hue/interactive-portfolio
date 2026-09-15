@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="KUUP AIGC 作品播放页">
+  <title>KUUP AIGC | Work</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Noto+Sans+SC:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="viewer.css">
+  <script src="viewer.js" defer></script>
+</head>
+<body>
+  <header class="viewer-header">
+    <a class="viewer-brand" href="../" aria-label="返回 KUUP AIGC 作品集首页">
+      <img src="../assets/logo/imagegen/kuup-aigc-wordmark-alpha-v1.png" alt="KUUP AIGC">
+    </a>
+    <a class="viewer-back" href="../">← 返回作品集</a>
+  </header>
+
+  <main class="viewer-shell">
+    <section class="viewer-stage" aria-live="polite">
+      <div class="viewer-media" data-media-host>
+        <p class="viewer-loading">正在载入作品…</p>
+      </div>
+    </section>
+
+    <section class="viewer-info" aria-labelledby="work-title">
+      <p class="viewer-type" data-work-type>KUUP AIGC</p>
+      <h1 id="work-title" data-work-title>作品载入中</h1>
+      <p class="viewer-description" data-work-description></p>
+    </section>
+  </main>
+</body>
+</html>

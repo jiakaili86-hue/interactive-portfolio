@@ -3,11 +3,11 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="李家楷的互动设计与创意技术作品集，包含实时影像、WebGL、物理交互与声音实验。">
-  <title>李家楷 | Interactive Works</title>
+  <meta name="description" content="KUUP AIGC 互动作品集，展示 AIGC 影像、实时图形、游戏原型与互动作品。">
+  <title>KUUP AIGC | Interactive Portfolio</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Noto+Sans+SC:wght@400;500;700;900&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700;800&family=Noto+Sans+SC:wght@400;500;700;900&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="home.css">
   <script>
     document.documentElement.classList.add("js");
@@ -15,151 +15,135 @@
   <script src="home.js" defer></script>
 </head>
 <body class="is-loading">
-  <a class="skip-link" href="#selected-work">跳到精选作品</a>
+  <a class="skip-link" href="#works">跳到作品展示</a>
 
   <div class="loader" aria-hidden="true">
-    <div class="loader__name">LI JIAKAI</div>
-    <div class="loader__track"><span></span></div>
-    <div class="loader__meta">INTERACTIVE WORKS / 2026</div>
+    <span>KUUP AIGC</span>
+    <i></i>
   </div>
 
+  <audio data-ambient-audio src="assets/audio/dark-shrine-loop-qubodup.ogg" preload="auto" loop playsinline></audio>
+
   <header class="site-header">
-    <a class="identity" href="./" aria-label="李家楷作品集首页">
-      <span class="identity__name">LI JIAKAI</span>
-      <span class="identity__mark" aria-hidden="true"></span>
+    <a class="identity" href="./" aria-label="Kuup AIGC 首页">
+      <img class="identity__logo" src="assets/logo/imagegen/kuup-aigc-wordmark-alpha-v1.png" alt="Kuup AIGC">
     </a>
-    <p class="site-header__role">Creative technologist<br>Interactive designer</p>
-    <p class="site-header__count">
-      <span data-current-number>01</span>
-      <span aria-hidden="true">/</span>
-      <span>03</span>
-    </p>
+    <nav class="site-nav" aria-label="音乐控制">
+      <button class="audio-toggle" type="button" data-audio-toggle aria-label="背景音乐" aria-pressed="false">音乐 · 关</button>
+    </nav>
   </header>
 
   <main>
-    <section class="showcase" id="selected-work" aria-label="精选互动作品">
-      <div class="media-stage" aria-hidden="true">
-        <figure class="project-media is-active" data-project-media="0">
-          <video muted loop playsinline preload="auto" poster="dissolve/bust.png">
+    <section class="orbit-hero" aria-label="作品集首页动态封面" data-orbit-hero>
+      <video class="hero-bg hero-bg--video" poster="assets/portfolio-backgrounds/kuup-hooded-figure-reference.png" autoplay muted loop playsinline>
+        <source src="assets/portfolio-backgrounds/kuup-hero-motion.mp4" type="video/mp4">
+      </video>
+      <div class="hero-wash" aria-hidden="true"></div>
+      <div class="hero-noise" aria-hidden="true"></div>
+
+      <div class="orbit-stage" data-orbit-stage aria-label="循环作品预览">
+        <a class="orbit-tile" href="viewer/?work=dragon-duel" data-orbit-tile data-project="熔岩巨龙对决" data-medium="游戏战斗 CG · 43 秒" aria-label="打开熔岩巨龙对决播放页">
+          <img src="assets/covers/game-cg-duel-cover.png" alt="动漫双角色在熔岩巨龙战场对决的封面海报">
+          <span>熔岩巨龙对决</span>
+        </a>
+        <a class="orbit-tile orbit-tile--tall" href="viewer/?work=jianghu-story" data-orbit-tile data-project="古风江湖叙事" data-medium="AIGC 叙事影像 · 50 秒" aria-label="打开古风江湖叙事播放页">
+          <img src="assets/covers/costume-narrative-cover.png" alt="">
+          <span>古风江湖叙事</span>
+        </a>
+        <a class="orbit-tile" href="dissolve/" data-orbit-tile data-project="粒子溶解实验" data-medium="实时交互 · WebGL" aria-label="打开粒子溶解实验">
+          <img src="dissolve/bust.png" alt="">
+          <span>粒子溶解实验</span>
+        </a>
+        <a class="orbit-tile orbit-tile--wide" href="buxix-case/" data-orbit-tile data-project="布蜥蜥的一天" data-medium="原创 IP · 角色设定" aria-label="打开布蜥蜥的一天原创 IP 作品">
+          <img src="buxix-case/assets/06-card-cover.jpg" alt="布蜥蜥以滑板姿态递出棒棒糖的 IP 作品封面">
+          <span>布蜥蜥的一天</span>
+        </a>
+        <a class="orbit-tile" href="viewer/?work=coconut-latte" data-orbit-tile data-project="生椰拿铁广告" data-medium="AIGC 商业广告 · 33 秒" aria-label="打开生椰拿铁广告播放页">
+          <img src="assets/covers/coconut-latte-cover.png" alt="蓝天海岛场景中的生椰拿铁广告封面">
+          <span>生椰拿铁广告</span>
+        </a>
+        <a class="orbit-tile orbit-tile--tall" href="lanyard/" data-orbit-tile data-project="WE ARE 26" data-medium="网页交互 · 物理模拟" aria-label="打开 WE ARE 26 物理吊牌交互作品">
+          <img src="lanyard/assets/lanyard-natural-thin-cord-v3.png" alt="白衣人物以细黑圆绳自然佩戴黑色世界杯吊牌">
+          <span>WE ARE 26</span>
+        </a>
+        <a class="orbit-tile" href="viewer/?work=game-cg-character" data-orbit-tile data-project="游戏 CG 角色展示" data-medium="AIGC 角色 CG · 66 秒" aria-label="打开游戏 CG 角色展示播放页">
+          <img src="assets/covers/game-cg-character-cover.png" alt="圣堂场景中的三位游戏 CG 角色展示封面">
+          <span>游戏 CG 角色展示</span>
+        </a>
+        <a class="orbit-tile" href="game/" data-orbit-tile data-project="百味守阵" data-medium="浏览器游戏 · 可试玩 Demo" aria-label="打开百味守阵放置类游戏 Demo">
+          <img src="assets/covers/baiwei-shouzhen-cover-v8-anime-tactician.png" alt="百味守阵原创女阵线师在东方幻想山城指挥食灵守阵的二次元游戏封面">
+          <span>百味守阵</span>
+        </a>
+        <a class="orbit-tile" href="ronin/" data-orbit-tile data-project="侠客行" data-medium="第一人称交互 · 点击挥砍" aria-label="打开侠客行第一人称武士交互作品">
+          <video autoplay muted loop playsinline preload="metadata" disablepictureinpicture aria-hidden="true">
             <source src="ronin/assets/idle.mp4" type="video/mp4">
           </video>
-        </figure>
-
-        <figure class="project-media project-media--still" data-project-media="1">
-          <img src="dissolve/bust.png" alt="">
-          <span class="project-media__echo"></span>
-        </figure>
-
-        <figure class="project-media" data-project-media="2">
-          <video muted loop playsinline preload="metadata" poster="lanyard/assets/front.png">
-            <source src="lanyard/assets/bg.mp4" type="video/mp4">
-          </video>
-        </figure>
-
-        <div class="media-stage__veil"></div>
-        <div class="media-stage__grain"></div>
-        <div class="pointer-light"></div>
+          <span>侠客行</span>
+        </a>
+        <a class="orbit-tile" href="viewer/?work=robot-company" data-orbit-tile data-project="机器人公司宣传片" data-medium="AIGC 品牌影像 · 105 秒" aria-label="打开机器人公司宣传片播放页">
+          <img src="assets/covers/robot-company-cover.png" alt="机器人公司宣传片海报封面">
+          <span>机器人公司宣传片</span>
+        </a>
       </div>
 
-      <div class="showcase__content" aria-live="polite">
-        <article class="project-copy is-active" data-project-copy="0">
-          <p class="project-copy__type">Interactive film / WebAudio</p>
-          <div class="project-copy__title-wrap">
-            <h1 class="project-copy__title">侠客行</h1>
-          </div>
-          <p class="project-copy__english">RONIN POV</p>
-          <p class="project-copy__description">
-            第一人称浪人视角。影像、呼吸、眨眼与声音共同构成一个可以进入的瞬间。
-          </p>
-          <a class="enter-link" href="ronin/">
-            <span>进入作品</span>
-            <span class="enter-link__icon" aria-hidden="true">↗</span>
-          </a>
-        </article>
-
-        <article class="project-copy" data-project-copy="1" aria-hidden="true">
-          <p class="project-copy__type">WebGL experiment / GLSL</p>
-          <div class="project-copy__title-wrap">
-            <h2 class="project-copy__title">灰烬溶解</h2>
-          </div>
-          <p class="project-copy__english">DISSOLVE FX</p>
-          <p class="project-copy__description">
-            指针扫过画面，形体被实时噪声场剥离成拖影、碎屑与浮尘。
-          </p>
-          <a class="enter-link" href="dissolve/">
-            <span>进入作品</span>
-            <span class="enter-link__icon" aria-hidden="true">↗</span>
-          </a>
-        </article>
-
-        <article class="project-copy" data-project-copy="2" aria-hidden="true">
-          <p class="project-copy__type">3D interaction / Physics</p>
-          <div class="project-copy__title-wrap">
-            <h2 class="project-copy__title">物理吊牌</h2>
-          </div>
-          <p class="project-copy__english">LANYARD BADGE</p>
-          <p class="project-copy__description">
-            一张可以抓住、拖动与甩开的世界杯球迷证，绳体与卡牌由实时物理驱动。
-          </p>
-          <a class="enter-link" href="lanyard/">
-            <span>进入作品</span>
-            <span class="enter-link__icon" aria-hidden="true">↗</span>
-          </a>
-        </article>
+      <div class="hero-panel" aria-label="当前作品信息">
+        <div class="hero-panel__work">
+          <strong data-orbit-label>选择一张卡牌</strong>
+          <span data-orbit-type>悬浮翻面，点击进入作品</span>
+        </div>
+        <a href="#works">浏览作品</a>
       </div>
 
-      <nav class="project-nav" aria-label="切换精选项目">
-        <a class="project-nav__item is-active" href="ronin/" data-project-trigger="0" data-accent="oklch(0.73 0.10 55)" aria-current="true">
-          <span class="project-nav__number">01</span>
-          <span class="project-nav__label">
-            <strong>侠客行</strong>
-            <small>Film / Sound</small>
-          </span>
-          <span class="project-nav__line" aria-hidden="true"></span>
-        </a>
-        <a class="project-nav__item" href="dissolve/" data-project-trigger="1" data-accent="oklch(0.79 0.03 240)">
-          <span class="project-nav__number">02</span>
-          <span class="project-nav__label">
-            <strong>灰烬溶解</strong>
-            <small>WebGL / GLSL</small>
-          </span>
-          <span class="project-nav__line" aria-hidden="true"></span>
-        </a>
-        <a class="project-nav__item" href="lanyard/" data-project-trigger="2" data-accent="oklch(0.85 0.16 105)">
-          <span class="project-nav__number">03</span>
-          <span class="project-nav__label">
-            <strong>物理吊牌</strong>
-            <small>R3F / Physics</small>
-          </span>
-          <span class="project-nav__line" aria-hidden="true"></span>
-        </a>
-      </nav>
+      <button class="scroll-cue" type="button" data-enter-works>
+        <span>向下浏览</span>
+        <i aria-hidden="true"></i>
+      </button>
+    </section>
 
-      <div class="showcase__hint" aria-hidden="true">
-        <span>Scroll to switch</span>
-        <span class="showcase__hint-line"></span>
+    <section class="sticky-showcase work-browser" id="works" data-sticky-showcase aria-label="分类作品浏览">
+      <div class="sticky-viewport">
+        <img class="showcase-bg" src="assets/portfolio-backgrounds/kuup-hand-light-showcase.png" alt="">
+        <div class="showcase-wash" aria-hidden="true"></div>
+        <div class="showcase-grid" aria-hidden="true"></div>
+
+        <div class="work-visuals">
+          <a class="work-visual is-active" href="ronin/" data-featured-link aria-label="打开侠客行">
+            <img src="assets/covers/ronin-first-person-cover.jpg" alt="" data-featured-image>
+          </a>
+        </div>
+
+        <div class="work-copy">
+          <p class="work-index"><span data-item-number>01</span> / <span data-item-total>03</span></p>
+          <article class="work-card is-active">
+            <p class="work-type" data-featured-type>UI / REALTIME INTERACTION</p>
+            <h2 data-featured-title>侠客行</h2>
+            <p data-featured-description>点击画面触发挥砍反馈的第一人称实时交互。</p>
+            <a href="ronin/" data-featured-button>进入作品</a>
+          </article>
+        </div>
+
+        <nav class="work-rail" role="tablist" aria-label="作品分类">
+          <button class="is-active" type="button" role="tab" aria-selected="true" data-category-trigger="ui">UI · 03</button>
+          <button type="button" role="tab" aria-selected="false" data-category-trigger="ip">IP · 01</button>
+          <button type="button" role="tab" aria-selected="false" data-category-trigger="video">VIDEO · 05</button>
+          <button type="button" role="tab" aria-selected="false" data-category-trigger="game">GAME · 01</button>
+        </nav>
+
+        <button class="showcase-side showcase-side--prev" type="button" data-item-prev aria-label="上一个作品"><span aria-hidden="true">←</span></button>
+        <button class="showcase-side showcase-side--next" type="button" data-item-next aria-label="下一个作品"><span aria-hidden="true">→</span></button>
       </div>
     </section>
 
     <section class="practice" aria-labelledby="practice-title">
-      <p class="practice__eyebrow">Practice / 2024–2026</p>
-      <h2 id="practice-title">把影像、声音、代码与游戏规则，做成可以亲手触发的体验。</h2>
-      <div class="practice__fields" aria-label="创作领域">
-        <span>Interactive web</span>
-        <span>Generative image</span>
-        <span>Game experiments</span>
-        <a href="ip设计/">Character IP</a>
-      </div>
-      <p class="practice__note">
-        Selected works are best experienced on desktop Chrome.
-      </p>
+      <p>Practice / 2026</p>
+      <h2 id="practice-title">Visual systems built as playable, scrollable, touchable scenes.</h2>
+      <a href="#works">Back to selected works</a>
     </section>
   </main>
 
   <footer class="site-footer">
-    <span>LI JIAKAI</span>
-    <span>INTERACTIVE PORTFOLIO</span>
-    <a href="#selected-work">BACK TO TOP ↑</a>
+    <span>KUUP AIGC</span>
+    <span>Interactive Portfolio</span>
   </footer>
 </body>
 </html>
